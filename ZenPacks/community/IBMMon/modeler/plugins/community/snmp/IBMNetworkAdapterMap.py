@@ -1,7 +1,7 @@
 ################################################################################
 #
 # This program is part of the IBMMon Zenpack for Zenoss.
-# Copyright (C) 2009 Egor Puzanov.
+# Copyright (C) 2009, 2010, 2011 Egor Puzanov.
 #
 # This program can be used under the GNU General Public License version 2
 # You can find full information here: http://www.zenoss.com/oss
@@ -13,9 +13,9 @@ __doc__="""IBMNetworkAdapterMap
 IBMNetworkAdapterMap maps the ibmSystemLogicalNetworkAdapterTable table to cards
 objects
 
-$Id: IBMNetworkAdapterMap.py,v 1.0 2009/07/21 23:36:53 egor Exp $"""
+$Id: IBMNetworkAdapterMap.py,v 1.1 2011/01/11 19:05:35 egor Exp $"""
 
-__version__ = '$Revision: 1.0 $'[11:-2]
+__version__ = '$Revision: 1.1 $'[11:-2]
 
 from Products.DataCollector.plugins.CollectorPlugin import SnmpPlugin, GetTableMap
 from Products.DataCollector.plugins.DataMaps import MultiArgs

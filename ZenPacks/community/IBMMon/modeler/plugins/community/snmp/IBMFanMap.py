@@ -1,7 +1,7 @@
 ################################################################################
 #
 # This program is part of the IBMMon Zenpack for Zenoss.
-# Copyright (C) 2009 Egor Puzanov.
+# Copyright (C) 2009, 2010, 2011 Egor Puzanov.
 #
 # This program can be used under the GNU General Public License version 2
 # You can find full information here: http://www.zenoss.com/oss
@@ -12,9 +12,9 @@ __doc__="""IBMFanMap
 
 IBMFanMap maps the iBMPSGTachometerTable table to fab objects
 
-$Id: IBMFanMap.py,v 1.0 2009/07/13 00:27:53 egor Exp $"""
+$Id: IBMFanMap.py,v 1.1 2011/01/11 19:04:50 egor Exp $"""
 
-__version__ = '$Revision: 1.0 $'[11:-2]
+__version__ = '$Revision: 1.1 $'[11:-2]
 
 
 from Products.DataCollector.plugins.CollectorPlugin import SnmpPlugin, GetTableMap
