@@ -1,7 +1,7 @@
 ################################################################################
 #
 # This program is part of the IBMMon Zenpack for Zenoss.
-# Copyright (C) 2009 Egor Puzanov.
+# Copyright (C) 2009, 2010, 2011 Egor Puzanov.
 #
 # This program can be used under the GNU General Public License version 2
 # You can find full information here: http://www.zenoss.com/oss
@@ -13,9 +13,9 @@ __doc__="""IBMTemperatureSensorMap
 IBMTemperatureSensorMap maps the iBMPSGTemperatureSensorTable table to
 temperaturesensors objects
 
-$Id: IBMTemperatureSensorMap.py,v 1.0 2009/07/12 23:36:53 egor Exp $"""
+$Id: IBMTemperatureSensorMap.py,v 1.1 2011/01/07 21:54:09 egor Exp $"""
 
-__version__ = '$Revision: 1.0 $'[11:-2]
+__version__ = '$Revision: 1.1 $'[11:-2]
 
 from Products.DataCollector.plugins.CollectorPlugin import SnmpPlugin, GetTableMap
 
@@ -28,20 +28,20 @@ class IBMTemperatureSensorMap(SnmpPlugin):
     compname = "hw"
 
     snmpGetTableMaps = (
-        GetTableMap('temperatureProbeTable',
-	            '1.3.6.1.4.1.2.6.159.1.1.80.1.1',
-		    {
-		        '.1': 'id',
-			'.14': 'threshold',
-			'.17': '_location',
-		    }
-	),
+        GetTableMap('tempProbeTable',
+                    '1.3.6.1.4.1.2.6.159.1.1.80.1.1',
+                    {
+                        '.1': 'id',
+                        '.14': 'threshold',
+                        '.17': '_location',
+                    }
+        ),
     )
 
     locations = {0: "Unknown",
                  1: "Motherboard",
                  2: "CPU",
-                 3: "PowerSupply",
+                 3: "Power Supply",
                  4: "DASD",
                 }
 
@@ -49,19 +49,17 @@ class IBMTemperatureSensorMap(SnmpPlugin):
         """collect snmp information from this device"""
         log.info('processing %s for device %s', self.name(), device.id)
         getdata, tabledata = results
-        tsensorstable = tabledata.get("temperatureProbeTable")
         rm = self.relMap()
-	localecounter = {}
-        for oid, tsensor in tsensorstable.iteritems():
+        lcounter = {}
+        for oid, tsensor in tabledata.get("tempProbeTable", {}).iteritems():
             try:
                 om = self.objectMap(tsensor)
-		om.snmpindex =  oid.strip('.')
-		if om._location in localecounter:
-		    localecounter[om._location] = localecounter[om._location] + 1
-		else:
-		    localecounter[om._location] = 1
-                om.id = self.prepId("%s%d" % (self.locations.get(getattr(om, '_location', 1), self.locations[1]), localecounter[om._location]))
-                om.status = 2
+                om.snmpindex =  oid.strip('.')
+                location=self.locations.get(getattr(om,'_location',1),'Unknown')
+                if location not in lcounter: lcounter[location] = 0
+                lcounter[location] += 1
+                om.id = self.prepId("%s%d" % (location, lcounter[location]))
+                om.status = 0
             except AttributeError:
                 continue
             rm.append(om)

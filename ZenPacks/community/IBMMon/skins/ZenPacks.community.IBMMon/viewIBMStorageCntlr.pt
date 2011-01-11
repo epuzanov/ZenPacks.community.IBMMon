@@ -7,14 +7,14 @@
 <input type="hidden" name="zenScreenName" tal:attributes="value template/id" />
 
 <tal:block metal:define-macro="objectperf" tal:define="
-                tabletitle string:Disk Array Controller;
+                tabletitle string:ServerRAID Controller;
                 menu_id string:Lockable">
 <tal:block metal:use-macro="here/zenuimacros/macros/zentable">
 
 <tal:block metal:fill-slot="zentablecontents">
     <tr>
       <td class="tableheader" align=left>Model</td>
-      <td class="tablevalues" tal:content="here/model">sd0</td>
+      <td class="tablevalues" tal:content="structure here/getProductLink">sd0</td>
       <td class="tableheader">Monitor</td>
       <td class="tablevalues">
         <select class="tablevalues"  name="monitor:boolean">
@@ -24,27 +24,15 @@
       </td>
     </tr>
     <tr>
-      <td class="tableheader" align=left>Snmp Index</td>
-      <td class="tablevalues" tal:content="here/snmpindex">1</td>
-      <td class="tableheader" align=left>Status</td>
-      <td class="tablevalues" tal:content="here/statusString">1</td>
-    </tr>      
-    <tr>
       <td class="tableheader" align=left>Firmware</td>
       <td class="tablevalues" tal:content="here/FWRev">1</td>
-      <td class="tableheader" align=left>Driver</td>
+      <td class="tableheader" align=left>BIOS</td>
       <td class="tablevalues" tal:content="here/SWVer">1</td>
     <tr>
       <td class="tableheader" align=left>Slot</td>
       <td class="tablevalues" tal:content="here/slot">1</td>
-      <td class="tableheader" align=left>Current Role</td>
-      <td class="tablevalues" tal:content="here/roleString">1</td>
-    </tr>
-    <tr>
-      <td class="tableheader" align=left>Type</td>
-      <td class="tablevalues" tal:content="here/controllerType">1</td>
-      <td class="tableheader" align=left>Cache Size</td>
-      <td class="tablevalues" tal:content="here/cacheSizeString">1</td>
+      <td class="tableheader" align=left>Status</td>
+      <td class="tablevalues" tal:content="here/statusString">1</td>
     </tr>
     <tr tal:condition="manager">
         <td align="left" class="tableheader" colspan="4">

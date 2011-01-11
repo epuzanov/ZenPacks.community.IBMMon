@@ -1,47 +1,58 @@
 ################################################################################
 #
 # This program is part of the IBMMon Zenpack for Zenoss.
-# Copyright (C) 2009, 2010, 2011 Egor Puzanov.
+# Copyright (C) 2011 Egor Puzanov.
 #
 # This program can be used under the GNU General Public License version 2
 # You can find full information here: http://www.zenoss.com/oss
 #
 ################################################################################
 
-__doc__="""IBMPowerSupply
+__doc__="""IBMLogicalDisk
 
-IBMPowerSupply is an abstraction of a PowerSupply.
+IBMLogicalDisk is an abstraction of a harddisk.
 
-$Id: IBMPowerSupply.py,v 1.1 2011/01/07 19:42:54 egor Exp $"""
+$Id: IBMLogicalDisk.py,v 1.0 2011/01/10 19:49:54 egor Exp $"""
 
-__version__ = "$Revision: 1.1 $"[11:-2]
+__version__ = "$Revision: 1.0 $"[11:-2]
 
-from Products.ZenModel.PowerSupply import PowerSupply
+from ZenPacks.community.deviceAdvDetail.LogicalDisk import LogicalDisk
 from IBMComponent import *
 
-class IBMPowerSupply(PowerSupply, IBMComponent):
-    """PowerSupply object"""
+class IBMLogicalDisk(LogicalDisk, IBMComponent):
+    """IBMLogicalDisk object"""
 
-    status = 0
 
-    _properties = PowerSupply._properties + (
-        {'id':'status', 'type':'int', 'mode':'w'},
-    )
+    writeCacheMode = ''
+    status = 1
 
-    factory_type_information = ( 
-        { 
-            'id'             : 'PowerSupply',
-            'meta_type'      : 'PowerSupply',
+    statusmap ={1: (DOT_GREEN, SEV_CLEAN, 'Online'),
+                2: (DOT_RED, SEV_CRITICAL, 'Critical'),
+                3: (DOT_ORANGE, SEV_ERROR, 'Offline'),
+                4: (DOT_YELLOW, SEV_WARNING, 'Migrating'),
+                5: (DOT_GREEN, SEV_CLEAN, 'Free'),
+                9: (DOT_GREY, SEV_WARNING, 'Unknown'),
+                }
+
+
+    _properties = LogicalDisk._properties + (
+                 {'id':'writeCacheMode', 'type':'string', 'mode':'w'},
+                 )
+
+    factory_type_information = (
+        {
+            'id'             : 'HardDisk',
+            'meta_type'      : 'HardDisk',
             'description'    : """Arbitrary device grouping class""",
-            'icon'           : 'PowerSupply_icon.gif',
+            'icon'           : 'HardDisk_icon.gif',
             'product'        : 'ZenModel',
-            'factory'        : 'manage_addPowerSupply',
-            'immediate_view' : 'viewIBMPowerSupply',
+            'factory'        : 'manage_addHardDisk',
+            'immediate_view' : 'viewIBMLogicalDisk',
             'actions'        :
-            ( 
+            (
                 { 'id'            : 'status'
                 , 'name'          : 'Status'
-                , 'action'        : 'viewIBMPowerSupply'
+                , 'action'        : 'viewIBMLogicalDisk'
                 , 'permissions'   : (ZEN_VIEW,)
                 },
                 { 'id'            : 'perfConf'
@@ -58,27 +69,11 @@ class IBMPowerSupply(PowerSupply, IBMComponent):
           },
         )
 
-
-    def setState(self, value):
-        self.status = 0
-        for intvalue, status in self.statusmap.iteritems():
-            if status[2].upper() != value.upper(): continue 
-            self.status = value
-            break
-
-    state = property(fget=lambda self: self.statusString(),
-                     fset=lambda self, v: self.setState(v))
-
-
     def getRRDTemplates(self):
-        """
-        Return the RRD Templates list
-        """
         templates = []
         for tname in [self.__class__.__name__]:
             templ = self.getRRDTemplateByName(tname)
             if templ: templates.append(templ)
         return templates
 
-
-InitializeClass(IBMPowerSupply)
+InitializeClass(IBMLogicalDisk)

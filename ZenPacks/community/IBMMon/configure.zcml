@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:zcml="http://namespaces.zope.org/zcml">
+
+    <configure zcml:condition="installed Products.Zuul">
+
+        <adapter factory=".info.IBMStorageCntlrInfo"
+                 for=".IBMStorageCntlr.IBMStorageCntlr"
+                 provides=".interfaces.IIBMStorageCntlrInfo"
+                 />
+
+        <adapter factory=".info.IBMNetworkAdapterInfo"
+                 for=".IBMNetworkAdapter.IBMNetworkAdapter"
+                 provides=".interfaces.IIBMNetworkAdapterInfo"
+                 />
+
+        <adapter factory=".info.IBMLogicalDiskInfo"
+                 for=".IBMLogicalDisk.IBMLogicalDisk"
+                 provides=".interfaces.IIBMLogicalDiskInfo"
+                 />
+
+    </configure>
+</configure>

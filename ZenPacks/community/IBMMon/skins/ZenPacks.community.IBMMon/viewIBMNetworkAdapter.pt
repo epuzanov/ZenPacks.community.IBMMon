@@ -14,7 +14,7 @@
 <tal:block metal:fill-slot="zentablecontents">
     <tr>
       <td class="tableheader" align=left>Model</td>
-      <td class="tablevalues" tal:content="here/model">sd0</td>
+      <td class="tablevalues" tal:content="here/getProductName">1</td>
       <td class="tableheader">Monitor</td>
       <td class="tablevalues">
         <select class="tablevalues"  name="monitor:boolean">
@@ -30,9 +30,11 @@
       <td class="tablevalues" tal:content="here/speedString">1</td>
     </tr>
     <tr>
+      <td class="tableheader" align=left>Snmp Index</td>
+      <td class="tablevalues" tal:content="here/snmpindex">1</td>
       <td class="tableheader" align=left>Status</td>
       <td class="tablevalues" tal:content="here/statusString">1</td>
-    </tr>      
+    </tr>
     <tr tal:condition="manager">
         <td align="left" class="tableheader" colspan="4">
             <input class="tableheader" type="submit" value=" Save "

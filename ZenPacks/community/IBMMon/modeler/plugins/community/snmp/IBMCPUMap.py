@@ -28,21 +28,21 @@ class IBMCPUMap(SnmpPlugin):
     compname = "hw"
 
     snmpGetTableMaps = (
-        GetTableMap('hrProcessorTable',
-	            '.1.3.6.1.2.1.25.3.3.1',
-		    {
-		        '.1': '_cpuidx',
-		    }
-	),
+        GetTableMap('prTable',
+                    '.1.3.6.1.2.1.25.3.3.1',
+                    {
+                        '.1': '_cpuidx',
+                    }
+        ),
         GetTableMap('cpuTable',
-	            '.1.3.6.1.4.1.2.6.159.1.1.140.1.1',
-		    {
+                    '.1.3.6.1.4.1.2.6.159.1.1.140.1.1',
+                    {
                         '.1': 'id',
                         '.2': '_manuf',
                         '.3': '_family',
                         '.6': 'clockspeed',
-		    }
-	),
+                    }
+        ),
     )
 
 
@@ -50,10 +50,11 @@ class IBMCPUMap(SnmpPlugin):
         """collect snmp information from this device"""
         log.info('processing %s for device %s', self.name(), device.id)
         getdata, tabledata = results
-        cputable = tabledata.get("cpuTable")
-        if not cputable: return
+        core = (len(tabledata.get("prTable", {})) or len(tabledata.get(
+            "cpuTable", {})) or 1) / (len(tabledata.get("cpuTable", {}) or 1))
+        if core < 1: core = 1
         rm = self.relMap()
-        for oid, cpu in cputable.iteritems():
+        for oid, cpu in tabledata.get("cpuTable", {}).iteritems():
             om = self.objectMap(cpu)
             model = self.families.get(getattr(om, '_family', 1), "Unknown")
             if not model.startswith(getattr(om, '_manuf')):
@@ -61,8 +62,7 @@ class IBMCPUMap(SnmpPlugin):
             om.setProductKey = MultiArgs(model, getattr(om, '_manuf')) 
             om.socket = om.id[3:]
             om.id = self.prepId(om.id)
-            om.cores = len(tabledata.get("hrProcessorTable")) / len(cputable)
-            if om.cores == 0: om.cores = 1
+            om.core = core
             rm.append(om)
         return rm
 

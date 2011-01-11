@@ -29,13 +29,13 @@ class IBMFanMap(SnmpPlugin):
 
     snmpGetTableMaps = (
         GetTableMap('fanTable',
-	            '1.3.6.1.4.1.2.6.159.1.1.80.5.1',
-		    {
-		        '.1': 'id',
-			'.12': 'threshold',
-			'.17': 'type',
-		    }
-	),
+                    '1.3.6.1.4.1.2.6.159.1.1.80.5.1',
+                    {
+                        '.1': 'id',
+                        '.12': 'threshold',
+                        '.17': 'type',
+                    }
+        ),
     )
 
 
@@ -49,17 +49,16 @@ class IBMFanMap(SnmpPlugin):
     def process(self, device, results, log):
         """collect snmp information from this device"""
         log.info('processing %s for device %s', self.name(), device.id)
-        log.info('results: %s', results)
         getdata, tabledata = results
         rm = self.relMap()
-        fantable = tabledata.get('fanTable')
-        for oid, fan in fantable.iteritems():
+        for oid, fan in tabledata.get('fanTable', {}).iteritems():
             try:
                 om = self.objectMap(fan)
-		om.snmpindex =  oid.strip('.')
-	        om.type = self.types.get(getattr(om, 'type', 2), 'Unknown (%s)' % om.type)
+                om.snmpindex =  oid.strip('.')
                 om.id = self.prepId(om.id)
-                om.status = 2
+                om.type = self.types.get(int(getattr(om, 'type', 2)),
+                                        'Unknown (%s)' % getattr(om, 'type', 2))
+                om.status = 0
             except AttributeError:
                 continue
             rm.append(om)

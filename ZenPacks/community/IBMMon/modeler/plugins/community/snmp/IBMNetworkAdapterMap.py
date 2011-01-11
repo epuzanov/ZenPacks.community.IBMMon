@@ -19,6 +19,10 @@ __version__ = '$Revision: 1.0 $'[11:-2]
 
 from Products.DataCollector.plugins.CollectorPlugin import SnmpPlugin, GetTableMap
 from Products.DataCollector.plugins.DataMaps import MultiArgs
+from IBMExpansionCardMap import IBMExpansionCardMap
+
+import re
+MACPAT=re.compile(r'^(\w{2})(\w{2})(\w{2})(\w{2})(\w{2})(\w{2})$')
 
 class IBMNetworkAdapterMap(SnmpPlugin):
     """Map IBM Director PCI table to model."""
@@ -30,38 +34,37 @@ class IBMNetworkAdapterMap(SnmpPlugin):
 
     snmpGetTableMaps = (
         GetTableMap('networkAdapterTable',
-	            '.1.3.6.1.4.1.2.6.159.1.1.110.1.1',
-		    {
-			'.1': 'id',
-			'.3': 'model',
-			'.7': 'macaddress',
-			'.8': 'speed',
-		    }
-	),
+                    '.1.3.6.1.4.1.2.6.159.1.1.110.1.1',
+                    {
+                        '.1': 'id',
+                        '.3': 'setProductKey',
+                        '.7': 'macaddress',
+                        '.8': 'speed',
+                    }
+        ),
     )
 
     def process(self, device, results, log):
         """collect snmp information from this device"""
         log.info('processing %s for device %s', self.name(), device.id)
-        rm = self.relMap()
         getdata, tabledata = results
-        cardtable = tabledata.get('networkAdapterTable')
-        for oid, card in cardtable.iteritems():
+        if not device.id in IBMExpansionCardMap.oms:
+            IBMExpansionCardMap.oms[device.id] = []
+        for oid, card in tabledata.get('networkAdapterTable', {}).iteritems():
             try:
                 om = self.objectMap(card)
-		om.snmpindex =  oid.strip('.')
+                om.snmpindex =  oid.strip('.')
                 om.id = self.prepId(om.id)
                 om.slot = 0
-                om.setProductKey = MultiArgs(om.model, om.model.split()[0]) 
-		if hasattr(om, 'macaddress'):
-		    mac = []
-		    for i in range(6):
-		        mac.append(om.macaddress[i*2:i*2+2])
-                    om.macaddress = ':'.join(mac)
-		if hasattr(om, 'speed'):
-                    om.speed = int(om.speed) * 1000000
-                om.status = 2
+                if hasattr(om, 'setProductKey'):
+                    om.setProductKey = MultiArgs(om.setProductKey,
+                                            om.setProductKey.split()[0]) 
+                r = MACPAT.search(getattr(om, 'macaddress', ''))
+                if r: om.macaddress = ':'.join(r.groups())
+                else: om.macaddress = ''
+                om.speed = float(getattr(om, 'speed', 0)) * 1000000
+                om.status = 0
             except AttributeError:
                 continue
-            rm.append(om)
-        return rm
+            IBMExpansionCardMap.oms[device.id].append(om)
+        return
